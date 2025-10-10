@@ -43,7 +43,7 @@ const About = () => {
 
   const statsData = [
     { label: 'Years Coding', target: 2, suffix: '+' },
-    { label: 'Certifications', target: 7, suffix: '+' },
+    { label: 'Certifications', target: 6, suffix: '+' },
     { label: 'Hackathons', target: 2, suffix: '+' },
     { label: 'Languages', target: 4, suffix: '+' },
   ];
