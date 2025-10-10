@@ -17,8 +17,8 @@ const Projects: React.FC = () => {
         'Full-featured task management app with authentication, priority levels, filtering, and real-time statistics. Supports both cloud sync and demo mode.',
       tech: ['JavaScript', 'Supabase', 'Tailwind CSS', 'Local Storage'],
       gradient: 'from-cyan-500 to-blue-500',
-      github: 'https://github.com/DarkSorcerer14',
-      live: '/projects/task-manager',
+      github: 'https://github.com/DarkSorcerer14/taskflow-smart-manager',
+      live: 'https://darksorcerer14.github.io/taskflow-smart-manager/',
     },
     {
       title: 'WeatherNow - Weather Dashboard',
@@ -32,7 +32,7 @@ const Projects: React.FC = () => {
     {
       title: 'CodeVault - Snippet Manager',
       description:
-        'Developer tool for organising code snippets with syntax highlighting, multi-language support, tagging system, search functionality, and export capabilities.',
+        'Developer tool for organizing code snippets with syntax highlighting, multi-language support, tagging system, search functionality, and export capabilities.',
       tech: ['JavaScript', 'Highlight.js', 'Tailwind CSS', 'Local Storage'],
       gradient: 'from-emerald-500 to-teal-500',
       github: 'https://github.com/DarkSorcerer14/codevault-snippet-manager',
