@@ -55,8 +55,6 @@ portfolio/
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css
-├── projects/
-├── public/
 ├── package.json
 └── README.md
 ```
