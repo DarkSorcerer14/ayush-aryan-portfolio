@@ -22,12 +22,12 @@ const Contact = () => {
 
     try {
       // Initialize EmailJS (you only need to do this once in your app)
-      emailjs.init('FznYM0Pe2lqsfz9AS');
+      emailjs.init(import.meta.env.VITE_PUBLIC_EMAILJS_USER_ID);
 
       // Send email
       const result = await emailjs.send(
-        'service_cm0jj2j',
-        'template_iqi5m5l',
+  import.meta.env.VITE_PUBLIC_EMAILJS_SERVICE_ID,
+  import.meta.env.VITE_PUBLIC_EMAILJS_TEMPLATE_ID,
         {
           name: formData.name,        // Matches {{name}} in template
           email: formData.email,      // Matches {{email}} in template
