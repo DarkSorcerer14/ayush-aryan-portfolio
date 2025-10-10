@@ -56,24 +56,25 @@ const Hero = () => {
       </div>
 
       {/* Availability Badge */}
-      <div 
-        className="
-          absolute 
-          top-16 md:top-24 /* Adjusted from top-20 to top-16 for better mobile spacing */
-          left-1/2 
-          -translate-x-1/2 
-          z-20 
-          px-3 py-1.5 /* Slightly smaller padding for mobile */
-          bg-slate-900/80 
-          backdrop-blur-sm 
-          rounded-full 
-          text-xs sm:text-sm text-cyan-400 /* Smaller text size on small screens */
-          border border-cyan-500/50
-          animate-fade-in delay-200 animate-pulse-glow 
-        "
-      >
-        Available for internship opportunities
-      </div>
+     <div 
+              className="
+                absolute 
+                top-1/2 /* Changed from top-16 to top-1/2 */
+                -translate-y-1/2 /* Added to vertically center it */
+                left-1/2 
+                -translate-x-1/2 
+                z-20 
+                px-3 py-1.5 
+                bg-slate-900/80 
+                backdrop-blur-sm 
+                rounded-full 
+                text-xs sm:text-sm text-cyan-400 
+                border border-cyan-500/50
+                animate-fade-in delay-200 animate-pulse-glow 
+              "
+            >
+              Available for internship opportunities
+            </div>
       
       {/* Main Content */}
       {/* Reduced vertical padding on small screens */}
