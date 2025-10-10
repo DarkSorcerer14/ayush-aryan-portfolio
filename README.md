@@ -1,5 +1,5 @@
-# Ayush Aryan — Portfolio
-
+## Ayush Aryan — Portfolio
+---
 # Personal Portfolio
 
 A modern, responsive portfolio website showcasing my projects, skills, and experience as a Computer Science student at SRM Institute of Science and Technology.
@@ -14,30 +14,13 @@ A modern, responsive portfolio website showcasing my projects, skills, and exper
 
 ## Features
 
-- Fully responsive design optimized for all devices
+- Fully responsive design optimised for all devices
 - Interactive contact form 
 - Smooth scrolling navigation
 - Project showcase with live demos and GitHub links
 - Skills section with proficiency levels
 - Experience timeline with workshops and certifications
 - Social media integration (GitHub, LinkedIn)
-
-## Quick Start
-
-```bash
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-```
 
 ## Project Structure
 
@@ -92,7 +75,7 @@ portfolio/
 
 ## License
 
-This project is open source and available under the MIT License.
+This project is open-source and available under the Apache-2.0 license.
 
 ---
 
