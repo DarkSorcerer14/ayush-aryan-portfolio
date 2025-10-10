@@ -32,7 +32,7 @@ const Projects: React.FC = () => {
     {
       title: 'CodeVault - Snippet Manager',
       description:
-        'Developer tool for organizing code snippets with syntax highlighting, multi-language support, tagging system, search functionality, and export capabilities.',
+        'Developer tool for organising code snippets with syntax highlighting, multi-language support, tagging system, search functionality, and export capabilities.',
       tech: ['JavaScript', 'Highlight.js', 'Tailwind CSS', 'Local Storage'],
       gradient: 'from-emerald-500 to-teal-500',
       github: 'https://github.com/DarkSorcerer14/codevault-snippet-manager',
@@ -44,7 +44,7 @@ const Projects: React.FC = () => {
         'Modern, responsive portfolio showcasing projects, skills, and experience. Features smooth animations, dark theme, and interactive sections.',
       tech: ['React', 'TypeScript', 'Tailwind CSS', 'Vite'],
       gradient: 'from-slate-500 to-slate-600',
-      github: 'https://github.com/DarkSorcerer14',
+      github: 'https://github.com/DarkSorcerer14/ayush-aryan-portfolio',
       live: '/',
     },
   ];
