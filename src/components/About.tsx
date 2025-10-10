@@ -5,11 +5,7 @@ import React from 'react';
 import useCountUp from './hooks/useCountUp'; 
 import useInView from './hooks/useInView';
 
-
-// ==========================================================
-// STAT ITEM SUBCOMPONENT (Moved to top level)
-// ==========================================================
-
+// STAT ITEM COMPONENT
 interface StatItemProps {
     label: string;
     target: number;
@@ -36,10 +32,7 @@ const StatItem: React.FC<StatItemProps> = ({ label, target, suffix, startCountin
 };
 
 
-// ==========================================================
-// MAIN ABOUT COMPONENT
-// ==========================================================
-
+// MAIN
 const About = () => {
   const qualities = [
     { icon: <Code2 className="w-6 h-6" />, title: 'Clean Code', description: 'Writing maintainable, structured code with focus on best practices' },
