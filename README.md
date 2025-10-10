@@ -58,13 +58,6 @@ portfolio/
 - **Experience** - Workshops and work experience
 - **Contact** - Contact form and social links
 
-## Available Scripts
-
-- `npm run dev` - Start development server at localhost:5173
-- `npm run build` - Create production build
-- `npm run preview` - Preview production build locally
-- `npm run lint` - Run ESLint for code quality
-
 ## Connect With Me
 
 - **Email:** ayush.aryan014@outlook.com
