@@ -1,17 +1,27 @@
 import { Github, Linkedin, Mail, ArrowDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+// Utility function to check if the current device is likely a mobile/touch device
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 const Hero = () => {
+  // Conditionally enable mouse tracking based on device
+  const isDesktop = !isMobileDevice();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    if (!isDesktop) return; // Exit if it's a mobile device
+
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [isDesktop]); // Re-run effect when isDesktop changes (only on mount)
 
   const roles = ['Frontend Engineer', 'Web Developer', 'Problem Solver'];
   const [currentRole, setCurrentRole] = useState(0);
@@ -24,35 +34,40 @@ const Hero = () => {
   }, []);
 
   return (
-    <section id="hero" className="min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+    // Increase minimum padding on mobile to ensure content isn't cramped at the top
+    <section id="hero" className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 pb-10 sm:pt-16">
       
-      {/* Background radial gradient effect */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(6, 182, 212, 0.15), transparent 40%)`,
-        }}
-      />
+      {/* Background radial gradient effect (Desktop Only for Performance) */}
+      {isDesktop && (
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(6, 182, 212, 0.15), transparent 40%)`,
+          }}
+        />
+      )}
 
-      {/* Background blur blobs */}
+      {/* Background blur blobs (Reduce size/opacity for Mobile) */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-700" />
+        {/* Adjusted w-48 h-48 for mobile, w-96 for larger screens */}
+        <div className="absolute top-1/4 left-1/4 w-48 h-48 sm:w-96 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" />
+        {/* Adjusted w-48 h-48 for mobile, w-96 for larger screens */}
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-96 sm:h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-700" />
       </div>
 
       {/* Availability Badge */}
       <div 
         className="
           absolute 
-          top-20 md:top-24
+          top-16 md:top-24 /* Adjusted from top-20 to top-16 for better mobile spacing */
           left-1/2 
           -translate-x-1/2 
           z-20 
-          px-4 py-2 
+          px-3 py-1.5 /* Slightly smaller padding for mobile */
           bg-slate-900/80 
           backdrop-blur-sm 
           rounded-full 
-          text-sm text-cyan-400 
+          text-xs sm:text-sm text-cyan-400 /* Smaller text size on small screens */
           border border-cyan-500/50
           animate-fade-in delay-200 animate-pulse-glow 
         "
@@ -61,17 +76,18 @@ const Hero = () => {
       </div>
       
       {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 text-center pt-24 md:pt-32"> 
-        <div className="space-y-8">
+      {/* Reduced vertical padding on small screens */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 text-center pt-16 md:pt-32"> 
+        <div className="space-y-6 sm:space-y-8">
           
            {/* Name/Title (with subtle hover effect) */}
           <h1 
             className="
-              text-5xl md:text-7xl font-bold mb-6 
+              text-4xl xs:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 /* Adjusted text size for mobile */
               transition-all duration-300 
-              hover:scale-[1.02]                 /* Subtle bulge effect */
-              hover:text-shadow-glow             /* Custom glow utility */
-              cursor-default                     /* Indicate it's interactive */
+              hover:scale-[1.02]                 
+              hover:text-shadow-glow             
+              cursor-default                     
             "
           >
             <span className="opacity-0 animate-fade-in" style={{ animationDelay: '0.4s' }}>Hi, I'm{' '}</span>
@@ -81,8 +97,9 @@ const Hero = () => {
           </h1>
 
           {/* Rotating Roles (centered) */}
-          <div className="h-20 flex items-center justify-center relative">
-            <p className="text-2xl md:text-4xl text-slate-300 font-light">
+          {/* Reduced height and font size for better mobile fit */}
+          <div className="h-12 sm:h-20 flex items-center justify-center relative">
+            <p className="text-xl sm:text-2xl md:text-4xl text-slate-300 font-light">
               {roles.map((role, index) => (
                 <span
                   key={role}
@@ -100,9 +117,9 @@ const Hero = () => {
 
           {/* Bio Paragraph */}
           <p className="
-            text-lg 
+            text-base sm:text-lg /* Reduced font size on mobile */
             text-slate-400 
-            max-w-2xl 
+            max-w-xl sm:max-w-2xl /* Reduced max-width slightly for mobile readability */
             mx-auto 
             leading-relaxed
             opacity-0 animate-fade-in 
@@ -112,51 +129,52 @@ const Hero = () => {
           </p>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-8 opacity-0 animate-fade-in" style={{ animationDelay: '1.0s' }}>
+          {/* Reduced vertical padding (pt-4) and horizontal padding/size on buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-4 sm:pt-8 opacity-0 animate-fade-in" style={{ animationDelay: '1.0s' }}>
             <a
               href="#contact"
-              className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all hover:scale-105"
+              className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all hover:scale-105 text-sm sm:text-base"
             >
               Get in Touch
             </a>
             <a
               href="#projects"
-              className="px-8 py-4 bg-slate-800 rounded-lg font-semibold hover:bg-slate-700 transition-all border border-slate-700 hover:border-slate-600"
+              className="px-6 py-3 sm:px-8 sm:py-4 bg-slate-800 rounded-lg font-semibold hover:bg-slate-700 transition-all border border-slate-700 hover:border-slate-600 text-sm sm:text-base"
             >
               View My Work
             </a>
           </div>
 
-          {/* UPDATED: ArrowDown Separator */}
-          {/* Used mx-auto for centering, with specific padding and smaller size */}
-          <div className="pt-1 pb-2 opacity-1 animate-fade-in delay-1100"> {/* Added fade-in and delay */}
-            <ArrowDown className="w-7 h-7 text-slate-450 mx-auto animate-bounce" /> {/* Smaller size w-6 h-6 */}
+          {/* ArrowDown Separator */}
+          <div className="pt-1 pb-2 opacity-1 animate-fade-in delay-1100">
+            <ArrowDown className="w-6 h-6 text-slate-450 mx-auto animate-bounce" /> {/* Slightly smaller w-6 h-6 */}
           </div>
-          {/* END UPDATED */}
           
           {/* Social Icons */}
-          <div className="flex items-center justify-center gap-6 opacity-0 animate-fade-in" style={{ animationDelay: '1.2s' }}>
+          {/* Reduced vertical padding (pt-0) on mobile */}
+          <div className="flex items-center justify-center gap-4 pt-0 sm:gap-6 opacity-0 animate-fade-in" style={{ animationDelay: '1.2s' }}>
+            {/* Reduced icon padding/size slightly on mobile (p-2.5) */}
             <a
               href="https://github.com/DarkSorcerer14"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-all hover:scale-110 border border-slate-700 group"
+              className="p-2.5 sm:p-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-all hover:scale-110 border border-slate-700 group"
             >
-              <Github className="w-6 h-6 group-hover:text-cyan-400 transition-colors" />
+              <Github className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-cyan-400 transition-colors" />
             </a>
             <a
               href="https://www.linkedin.com/in/ayush-aryan-3a4688281"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-all hover:scale-110 border border-slate-700 group"
+              className="p-2.5 sm:p-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-all hover:scale-110 border border-slate-700 group"
             >
-              <Linkedin className="w-6 h-6 group-hover:text-cyan-400 transition-colors" />
+              <Linkedin className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-cyan-400 transition-colors" />
             </a>
             <a
               href="mailto:ayush.aryan@outlook.com"
-              className="p-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-all hover:scale-110 border border-slate-700 group"
+              className="p-2.5 sm:p-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-all hover:scale-110 border border-slate-700 group"
             >
-              <Mail className="w-6 h-6 group-hover:text-cyan-400 transition-colors" />
+              <Mail className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-cyan-400 transition-colors" />
             </a>
           </div>
         </div>
