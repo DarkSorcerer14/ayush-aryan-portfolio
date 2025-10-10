@@ -26,7 +26,7 @@ const Projects: React.FC = () => {
         'Real-time weather application with current conditions, 5-day forecast, geolocation support, and detailed weather metrics using OpenWeatherMap API.',
       tech: ['JavaScript', 'REST API', 'Tailwind CSS', 'HTML5'],
       gradient: 'from-blue-500 to-cyan-500',
-      github: 'https://github.com/DarkSorcerer14',
+      github: 'https://github.com/DarkSorcerer14/weather-dashboard',
       live: 'https://darksorcerer14.github.io/weather-dashboard/',
     },
     {
@@ -35,7 +35,7 @@ const Projects: React.FC = () => {
         'Developer tool for organizing code snippets with syntax highlighting, multi-language support, tagging system, search functionality, and export capabilities.',
       tech: ['JavaScript', 'Highlight.js', 'Tailwind CSS', 'Local Storage'],
       gradient: 'from-emerald-500 to-teal-500',
-      github: 'https://github.com/DarkSorcerer14',
+      github: 'https://github.com/DarkSorcerer14/codevault-snippet-manager',
       live: 'https://darksorcerer14.github.io/codevault-snippet-manager/',
     },
     {
