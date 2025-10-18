@@ -11,6 +11,15 @@ interface Project {
 
 const Projects: React.FC = () => {
   const projects: Project[] = [
+        {
+      title: 'TaskFlow - Task Manager',
+      description:
+        'Full-featured task management app with authentication, priority levels, filtering, and real-time statistics. Supports both cloud sync and demo mode.',
+      tech: ['JavaScript', 'Supabase', 'Tailwind CSS', 'Local Storage'],
+      gradient: 'from-cyan-500 to-blue-500',
+      github: 'https://github.com/DarkSorcerer14/taskflow-smart-manager',
+      live: 'https://darksorcerer14.github.io/taskflow-smart-manager/',
+    },
     {
       title: 'WeatherNow - Weather Dashboard',
       description:
@@ -19,15 +28,6 @@ const Projects: React.FC = () => {
       gradient: 'from-blue-500 to-cyan-500',
       github: 'https://github.com/DarkSorcerer14/weather-dashboard',
       live: 'https://darksorcerer14.github.io/weather-dashboard/',
-    },
-    {
-      title: 'TaskFlow - Task Manager',
-      description:
-        'Full-featured task management app with authentication, priority levels, filtering, and real-time statistics. Supports both cloud sync and demo mode.',
-      tech: ['JavaScript', 'Supabase', 'Tailwind CSS', 'Local Storage'],
-      gradient: 'from-cyan-500 to-blue-500',
-      github: 'https://github.com/DarkSorcerer14/taskflow-smart-manager',
-      live: 'https://darksorcerer14.github.io/taskflow-smart-manager/',
     },
     {
       title: 'CodeVault - Snippet Manager',
