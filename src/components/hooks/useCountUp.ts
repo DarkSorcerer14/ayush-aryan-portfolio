@@ -27,5 +27,4 @@ const useCountUp = (end: number, duration = 1500, startCounting = true) => {
 
   return Math.min(count, end);
 };
-
 export default useCountUp;
