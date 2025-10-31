@@ -263,9 +263,3 @@ const Contact = () => {
     </section>
   );
 };
-
-<<<<<<< HEAD
-export default Contact;
-=======
-export default Contact;
->>>>>>> ecc36ef0593a87cc67c25e0c39f43a292ea12f12

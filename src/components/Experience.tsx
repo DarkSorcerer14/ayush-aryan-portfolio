@@ -111,11 +111,6 @@ const Experience = () => {
       <div className="max-w-6xl mx-auto w-full">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-<<<<<<< HEAD
-            Experiences & <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Certifications</span>
-=======
-            Experience & <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Certifications</span>
->>>>>>> ecc36ef0593a87cc67c25e0c39f43a292ea12f12
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 mx-auto rounded-full" />
         </div>
