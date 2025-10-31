@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow – Smart Task Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    html, body { transition: background 0.4s; }
+    body { background: linear-gradient(135deg, #E6E6FA 0%, #B373FD 100%);}
+    html.dark body { background: linear-gradient(135deg, #240046 0%, #3C096C 100%);}
+    .bgflower {
+      position: fixed; bottom: -15vw; right: -12vw; z-index: 0;
+      width: 75vw; height: 75vw; animation: flowerbgmove 10s linear infinite alternate;
+      background: radial-gradient(circle at 35% 40%, #e6e6fa 12vw, #b373fd 18vw, #7f00ff 30vw, transparent 55vw),
+                  conic-gradient(from 245deg at 55% 40%, #b373fd 10%, #7f00ff 65%, #993afe 92%, transparent 100%);
+      opacity: 0.23; filter: blur(30px); pointer-events:none;
+    }
+    @keyframes flowerbgmove { 0%{transform:rotate(0deg)scale(1);}100%{transform:rotate(12deg)scale(1.07);} }
+    html.dark .bgflower {
+      background: radial-gradient(circle at 35% 40%, #3c096c 12vw, #6d0ccd 19vw, #7f00ff 30vw, transparent 55vw),
+                  conic-gradient(from 245deg at 55% 40%, #6d0ccd 10%, #7f00ff 65%, #993afe 92%, transparent 100%);
+      opacity: 0.15; filter: blur(28px);
+    }
+    .task-item { animation: slideIn 0.3s ease-out;}
+    @keyframes slideIn {from {opacity:0;transform:translateY(10px);} to {opacity: 1;transform:translateY(0);}}
+    .fade-in { animation:slideIn 0.5s ease-out;}
+    .card-float { background: #fff; box-shadow: 0 8px 36px 0 #e6e6fa33; border: 2px solid #000;}
+    html.dark .card-float { background: #27114f; box-shadow: 0 8px 36px 0 #5a189a55; border: 2px solid #fff;}
+    .btn-main {background: linear-gradient(90deg, #e6e6fa 0%, #b373fd 60%, #7f00ff 100%); color: #000 !important; border: 2px solid #000;}
+    html.dark .btn-main {background: linear-gradient(90deg, #3c096c 0%, #7f00ff 100%); color: #fff !important; border:2px solid #fff;}
+    .btn-main:hover, .btn-demo:hover, .btn-secondary:hover {filter:brightness(0.96);}
+    .btn-secondary {background:#fff; color:#000 !important; border:2px solid #000;}
+    html.dark .btn-secondary {background: #240046; color: #fff !important; border:2px solid #fff;}
+    .btn-demo {background: linear-gradient(90deg, #e6e6fa 12%, #cdadfc 100%); color:#000 !important; border:2px solid #000;}
+    html.dark .btn-demo {background: linear-gradient(90deg, #3c096c 0%, #5a189a 99%); color: #fff !important; border:2px solid #fff;}
+    .input-box {background: #fff; border: 2px solid #000; color: #000 !important; font-weight:600;}
+    html.dark .input-box {background: #240046; border:2px solid #fff; color:#fff !important;}
+    .toggle-btn {background: #fff; border: 2px solid #000; color: #000 !important;}
+    html.dark .toggle-btn {background: #240046; border: 2px solid #fff; color: #fff !important;}
+    ::selection { background: #b373fd22;}
+    html.dark ::selection { background: #24004688; color: #fff;}
+    .force-text { color: #000 !important; font-weight: bold;}
+    html.dark .force-text { color: #fff !important;}
+    .demo-box { border-color: #000 !important; border-width: 2px !important;}
+    html.dark .demo-box { border-color: #fff !important; }
+    html.dark footer { border-color: #fff !important; }
+    #darkModeToggle { left: 2vw; right: auto; }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen bg-gradient-to-br text-black dark:text-white relative items-center">
+  <div class="bgflower"></div>
+  <!-- Dark/Light mode toggle: top-left -->
+  <button id="darkModeToggle" class="toggle-btn fixed top-4 left-2 sm:left-4 p-2 rounded-full shadow text-2xl flex items-center justify-center focus:outline-none z-20">
+    <span id="moon" style="display:block;">🌙</span>
+    <span id="sun" class="hidden">☀️</span>
+  </button>
+  <button id="signOutBtn" style="display:none;" class="toggle-btn fixed top-4 right-2 sm:right-4 p-2 rounded-full shadow text-2xl flex items-center justify-center focus:outline-none z-20">
+    <span class="font-bold text-base sm:text-lg px-3">Sign Out</span>
+  </button>
+  <div class="w-full flex flex-col items-center px-2">
+    <!-- AUTH & MAIN APP PAGES -->
+    <div id="authScreen" class="fade-in w-full flex flex-col items-center justify-center py-6">
+      <div class="text-center py-4">
+        <h1 class="text-4xl sm:text-5xl font-extrabold mb-2 tracking-tight force-text">
+          <span class="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">TaskFlow</span>
+        </h1>
+        <p class="text-base sm:text-lg font-bold force-text">Effortless Productivity For Developers!</p>
+      </div>
+      <div class="max-w-md w-full card-float rounded-2xl p-4 sm:p-6 mx-auto text-center">
+        <div class="mb-5 sm:mb-6">
+          <button id="signInBtn" class="w-full px-4 sm:px-6 py-3 btn-main rounded-lg font-bold mb-3 sm:mb-3 text-base sm:text-lg force-text">Sign In with Email</button>
+          <button id="signUpBtn" class="w-full px-4 sm:px-6 py-3 btn-secondary rounded-lg font-bold text-base sm:text-lg force-text">Create Account</button>
+        </div>
+        <div id="authForm" class="hidden">
+          <input type="email" id="email" placeholder="Email" class="input-box w-full px-4 py-3 rounded-lg mb-3 focus:outline-none text-base sm:text-lg font-bold force-text">
+          <input type="password" id="password" placeholder="Password" class="input-box w-full px-4 py-3 rounded-lg mb-4 focus:outline-none text-base sm:text-lg font-bold force-text">
+          <button id="authSubmit" class="w-full px-4 sm:px-6 py-3 btn-main rounded-lg font-bold mb-2 text-base sm:text-lg force-text">Continue</button>
+          <button id="authCancel" class="w-full px-4 sm:px-6 py-3 btn-secondary rounded-lg font-bold text-base sm:text-lg force-text">Cancel</button>
+        </div>
+        <div class="mt-5 sm:mt-6 p-3 sm:p-4 bg-white/50 dark:bg-[#291150]/60 rounded-lg border-2 demo-box text-center">
+          <p class="font-bold mb-2 force-text">Demo Mode Available</p>
+          <button id="demoBtn" class="w-full px-4 py-2 btn-demo rounded-lg text-base sm:text-lg font-bold force-text">Try Without Account (Local Storage)</button>
+        </div>
+      </div>
+    </div>
+    <div id="mainApp" class="hidden fade-in w-full flex flex-col items-center justify-start py-4 sm:py-6">
+      <div class="w-full max-w-xl flex flex-col items-center">
+        <div class="mb-5 w-full flex flex-col items-center">
+          <h1 class="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-1 force-text">
+            TaskFlow
+          </h1>
+          <p class="text-base sm:text-lg font-bold mt-1 sm:mt-2 force-text" id="userEmail"></p>
+        </div>
+        <div class="card-float rounded-2xl p-4 sm:p-6 mb-4 w-full flex flex-col items-center">
+          <h2 class="text-lg sm:text-2xl font-extrabold mb-3 sm:mb-4 force-text text-center">Add New Task</h2>
+          <div class="w-full flex flex-col sm:flex-row gap-2 sm:gap-3 items-center">
+            <input type="text" id="taskInput" placeholder="What needs to be done?" class="flex-1 input-box px-4 py-3 rounded-lg focus:outline-none text-base sm:text-lg font-bold force-text">
+            <select id="prioritySelect" class="input-box px-4 py-3 rounded-lg focus:outline-none text-base sm:text-lg font-bold force-text">
+              <option value="low">Low 🟢</option>
+              <option value="medium" selected>Medium 🟡</option>
+              <option value="high">High 🔴</option>
+            </select>
+            <button id="addTaskBtn" class="btn-main px-4 sm:px-6 py-3 rounded-lg font-bold transition-all text-base sm:text-lg force-text mt-2 sm:mt-0">Add</button>
+          </div>
+        </div>
+        <div class="w-full flex flex-wrap justify-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+          <button class="filter-btn active px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-base sm:text-lg btn-secondary transition-all font-bold force-text" data-filter="all">All</button>
+          <button class="filter-btn px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-base sm:text-lg btn-secondary transition-all font-bold force-text" data-filter="active">Active</button>
+          <button class="filter-btn px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-base sm:text-lg btn-secondary transition-all font-bold force-text" data-filter="completed">Completed</button>
+          <button class="filter-btn px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-base sm:text-lg btn-secondary transition-all font-bold force-text" data-filter="high">High Priority</button>
+        </div>
+        <div id="tasksList" class="w-full flex flex-col items-center space-y-3 mb-4"></div>
+        <div class="mt-2 sm:mt-3 grid grid-cols-3 gap-2 sm:gap-4 w-full text-center">
+          <div class="card-float rounded-xl p-3 sm:p-4 flex flex-col items-center flex-1">
+            <div class="text-lg sm:text-2xl font-extrabold force-text" id="totalTasks">0</div>
+            <div class="text-base sm:text-lg font-bold mt-1 force-text">Total</div>
+          </div>
+          <div class="card-float rounded-xl p-3 sm:p-4 flex flex-col items-center flex-1">
+            <div class="text-lg sm:text-2xl font-extrabold force-text" id="activeTasks">0</div>
+            <div class="text-base sm:text-lg font-bold mt-1 force-text">Active</div>
+          </div>
+          <div class="card-float rounded-xl p-3 sm:p-4 flex flex-col items-center flex-1">
+            <div class="text-lg sm:text-2xl font-extrabold force-text" id="completedTasks">0</div>
+            <div class="text-base sm:text-lg font-bold mt-1 force-text">Completed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="w-full text-center py-3 text-xs sm:text-sm select-none force-text border-t-2 mt-4" style="border-color: #000;">
+    &copy; 2025 <span class="font-semibold">Ayush Aryan</span>. All rights reserved.
+  </footer>
+  <script>
+    // Default = dark mode unless user picked light
+    const toggle = document.getElementById('darkModeToggle');
+    const moon = document.getElementById('moon');
+    const sun = document.getElementById('sun');
+    if (localStorage.getItem('tfDark') === 'no') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('tfDark', 'yes');
+    }
+    function updateTheme() {
+      const dark = document.documentElement.classList.contains('dark');
+      moon.style.display = dark ? 'block' : 'none';
+      sun.style.display = dark ? 'none' : 'block';
+    }
+    toggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('tfDark', document.documentElement.classList.contains('dark') ? 'yes' : 'no');
+      updateTheme();
+    });
+    updateTheme();
+    // Sign Out Button visibility control
+    function updateSignOutBtnVisibility() {
+      const signOutBtn = document.getElementById('signOutBtn');
+      const mainAppVisible = !document.getElementById('mainApp').classList.contains('hidden');
+      signOutBtn.style.display = mainAppVisible ? 'flex' : 'none';
+    }
+    const signOutBtn = document.getElementById('signOutBtn');
+    signOutBtn.onclick = function() {
+      if (typeof supabase !== "undefined" && supabase && !isDemoMode) supabase.auth.signOut();
+      isDemoMode = false;
+      document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('authScreen').classList.remove('hidden');
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+      updateSignOutBtnVisibility();
+    };
+    const SUPABASE_URL = 'https://ewnjcqkgizohtncwjeam.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3bmpjcWtnaXpvaHRuY3dqZWFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MzIwOTksImV4cCI6MjA3NjIwODA5OX0.DCq-KKWKILIfq0FGkkGGeuIputYIToCd-n7akTkl3vo';
+    let supabase = null;
+    let isDemoMode = false;
+    let currentFilter = 'all';
+    let isSignUp = false;
+    try { if (SUPABASE_URL !== 'https://your-project.supabase.co') supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch (e) {}
+    const authScreen = document.getElementById('authScreen');
+    const mainApp = document.getElementById('mainApp');
+    const authForm = document.getElementById('authForm');
+    const signInBtn = document.getElementById('signInBtn');
+    const signUpBtn = document.getElementById('signUpBtn');
+    const demoBtn = document.getElementById('demoBtn');
+    const authSubmit = document.getElementById('authSubmit');
+    const authCancel = document.getElementById('authCancel');
+    const userEmail = document.getElementById('userEmail');
+    const taskInput = document.getElementById('taskInput');
+    const prioritySelect = document.getElementById('prioritySelect');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const tasksList = document.getElementById('tasksList');
+    signInBtn.onclick = () => { isSignUp = false; showAuthForm(); };
+    signUpBtn.onclick = () => { isSignUp = true; showAuthForm(); };
+    demoBtn.onclick = function() { startDemoMode(); updateSignOutBtnVisibility(); };
+    authCancel.onclick = hideAuthForm;
+    authSubmit.onclick = handleAuth;
+    addTaskBtn.onclick = addTask;
+    if (taskInput) taskInput.onkeypress = (e) => { if (e.key === 'Enter') addTask(); };
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.onclick = function(e) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active','bg-slate-700'));
+        this.classList.add('active','bg-slate-700');
+        currentFilter = this.dataset.filter;
+        renderTasks();
+      }
+    });
+    function showAuthForm() {
+      signInBtn.classList.add('hidden');
+      signUpBtn.classList.add('hidden');
+      authForm.classList.remove('hidden');
+      authSubmit.textContent = isSignUp ? 'Sign Up' : 'Sign In';
+    }
+    function hideAuthForm() {
+      signInBtn.classList.remove('hidden');
+      signUpBtn.classList.remove('hidden');
+      authForm.classList.add('hidden');
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+    }
+    async function handleAuth() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      if (!email || !password) { alert('Please fill in all fields'); return; }
+      if (!supabase) { alert('Database not configured. Please use Demo Mode.'); return; }
+      try {
+        if (isSignUp) {
+          const { error } = await supabase.auth.signUp({ email, password });
+          if (error) throw error;
+          alert('Check your email for verification link!');
+        } else {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          showMainApp(email);
+        }
+        hideAuthForm();
+        updateSignOutBtnVisibility();
+      } catch (error) { alert(error.message); }
+    }
+    function startDemoMode() {
+      isDemoMode = true;
+      showMainApp('demo@taskflow.local');
+      loadDemoTasks();
+      updateSignOutBtnVisibility();
+    }
+    function showMainApp(email) {
+      authScreen.classList.add('hidden');
+      mainApp.classList.remove('hidden');
+      userEmail.textContent = isDemoMode ? 'Demo Mode (Local Storage)' : email;
+      renderTasks();
+      updateSignOutBtnVisibility();
+    }
+    function loadDemoTasks() {
+      const stored = localStorage.getItem('demoTasks');
+      if (!stored) {
+        const demoTasks = [
+          { id: 1, title: 'Complete React tutorial', completed: false, priority: 'high', created_at: new Date().toISOString() },
+          { id: 2, title: 'Build portfolio website', completed: true, priority: 'medium', created_at: new Date().toISOString() },
+          { id: 3, title: 'Learn TypeScript basics', completed: false, priority: 'medium', created_at: new Date().toISOString() }
+        ];
+        localStorage.setItem('demoTasks', JSON.stringify(demoTasks));
+      }
+    }
+    function getTasks() { if (isDemoMode) { return JSON.parse(localStorage.getItem('demoTasks') || '[]'); } return []; }
+    function saveTasks(tasks) { if (isDemoMode) { localStorage.setItem('demoTasks', JSON.stringify(tasks)); } }
+    function addTask() {
+      const title = taskInput.value.trim();
+      if (!title) return;
+      const tasks = getTasks();
+      const newTask = { id: Date.now(), title, priority: prioritySelect.value, completed: false, created_at: new Date().toISOString() };
+      tasks.push(newTask);
+      saveTasks(tasks);
+      taskInput.value = '';
+      renderTasks();
+    }
+    window.toggleTask = function(id) {
+      const tasks = getTasks();
+      const task = tasks.find(t => t.id === id);
+      if (task) { task.completed = !task.completed; saveTasks(tasks); renderTasks(); }
+    }
+    window.deleteTask = function(id) {
+      const tasks = getTasks().filter(t => t.id !== id); saveTasks(tasks); renderTasks();
+    }
+    function renderTasks() {
+      let tasks = getTasks(); if (!tasksList) return;
+      if (currentFilter === 'active') tasks = tasks.filter(t => !t.completed);
+      else if (currentFilter === 'completed') tasks = tasks.filter(t => t.completed);
+      else if (currentFilter === 'high') tasks = tasks.filter(t => t.priority === 'high');
+      const allTasks = getTasks();
+      document.getElementById('totalTasks').textContent = allTasks.length;
+      document.getElementById('activeTasks').textContent = allTasks.filter(t => !t.completed).length;
+      document.getElementById('completedTasks').textContent = allTasks.filter(t => t.completed).length;
+      if (tasks.length === 0) {
+        tasksList.innerHTML = '<div class="text-center force-text py-10 sm:py-12">No tasks found. Add one above!</div>'; return;
+      }
+      tasksList.innerHTML = tasks.map(task => {
+        const emoji = { high: "🔴", medium: "🟡", low: "🟢" }[task.priority];
+        return `
+          <div class="task-item card-float rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mx-auto w-full max-w-md force-text justify-center">
+            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})"
+              class="w-5 h-5 rounded border-2 bg-white dark:bg-[#240046] cursor-pointer transition-all duration-200 focus:ring-2 focus:ring-[#993AFE]">
+            <div class="flex-1 min-w-0 text-center">
+              <div class="font-bold text-base sm:text-lg force-text ${task.completed ? 'line-through opacity-65' : ''}">
+                ${emoji} ${task.title}
+              </div>
+              <div class="flex flex-wrap items-center gap-1 sm:gap-2 mt-1 text-sm sm:text-base force-text justify-center">
+                <span>${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</span>
+                <span>|</span>
+                <span class="opacity-60">${new Date(task.created_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+            <button onclick="deleteTask(${task.id})" class="btn-secondary px-3 py-1 rounded-lg transition-all text-sm sm:text-base font-bold force-text self-end sm:self-auto">Delete</button>
+          </div>
+        `;
+      }).join('');
+    }
+    if (supabase) supabase.auth.getSession().then(({ data: { session } }) => { if (session) showMainApp(session.user.email); });
+    // Run at startup
+    updateSignOutBtnVisibility();
+  </script>
+</body>
+</html>

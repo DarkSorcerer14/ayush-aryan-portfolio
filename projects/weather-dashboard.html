@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherNow - Live Weather Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .weather-card { transition: all 0.3s ease; }
+        .weather-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 min-h-screen text-white">
+    <div class="container mx-auto px-4 py-6 sm:py-8 max-w-6xl">
+        <div class="text-center mb-8 fade-in">
+            <h1 class="text-4xl sm:text-5xl font-bold mb-2">
+                <span class="bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">WeatherNow</span>
+            </h1>
+            <p class="text-blue-200 text-sm sm:text-base">Real-time weather information at your fingertips</p>
+        </div>
+
+        <div class="max-w-2xl mx-auto mb-8 fade-in">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="cityInput" placeholder="Enter city name (e.g., London, Tokyo, New York)"
+                        class="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:border-cyan-400 placeholder-blue-200 text-sm sm:text-base">
+                    <div class="flex gap-2">
+                        <button id="searchBtn" class="flex-1 px-5 py-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all text-sm sm:text-base">
+                            Search
+                        </button>
+                        <button id="locationBtn" class="px-4 py-3 bg-white/20 rounded-lg hover:bg-white/30 transition-all text-lg" title="Use my location">
+                            📍
+                        </button>
+                    </div>
+                </div>
+                <div id="error" class="hidden mt-3 text-red-300 text-sm"></div>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400"></div>
+            <p class="mt-4 text-blue-200">Loading weather data...</p>
+        </div>
+
+        <div id="weatherDisplay" class="hidden fade-in">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4 sm:p-8 mb-6">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="flex-1 text-center md:text-left mb-6 md:mb-0">
+                        <h2 class="text-3xl sm:text-4xl font-bold mb-2" id="cityName"></h2>
+                        <p class="text-blue-200 text-sm sm:text-base mb-4" id="currentDate"></p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 mb-4">
+                            <div class="text-6xl" id="weatherIcon"></div>
+                            <div>
+                                <div class="text-4xl sm:text-5xl font-bold" id="temperature"></div>
+                                <div class="text-lg sm:text-xl text-blue-200" id="description"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 sm:gap-4 mt-2 md:mt-0 w-full sm:w-auto">
+                        <div class="text-center p-3 sm:p-4 bg-white/10 rounded-lg">
+                            <div class="text-2xl sm:text-3xl mb-1">💧</div>
+                            <div class="text-lg sm:text-2xl font-bold" id="humidity"></div>
+                            <div class="text-xs sm:text-sm text-blue-200">Humidity</div>
+                        </div>
+                        <div class="text-center p-3 sm:p-4 bg-white/10 rounded-lg">
+                            <div class="text-2xl sm:text-3xl mb-1">💨</div>
+                            <div class="text-lg sm:text-2xl font-bold" id="windSpeed"></div>
+                            <div class="text-xs sm:text-sm text-blue-200">Wind Speed</div>
+                        </div>
+                        <div class="text-center p-3 sm:p-4 bg-white/10 rounded-lg">
+                            <div class="text-2xl sm:text-3xl mb-1">🌡️</div>
+                            <div class="text-lg sm:text-2xl font-bold" id="feelsLike"></div>
+                            <div class="text-xs sm:text-sm text-blue-200">Feels Like</div>
+                        </div>
+                        <div class="text-center p-3 sm:p-4 bg-white/10 rounded-lg">
+                            <div class="text-2xl sm:text-3xl mb-1">👁️</div>
+                            <div class="text-lg sm:text-2xl font-bold" id="visibility"></div>
+                            <div class="text-xs sm:text-sm text-blue-200">Visibility</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <div class="weather-card bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-4 sm:p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="text-3xl">🌅</div>
+                        <div>
+                            <div class="text-sm text-blue-200">Sunrise</div>
+                            <div class="text-lg sm:text-xl font-bold" id="sunrise"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="weather-card bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-4 sm:p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="text-3xl">🌇</div>
+                        <div>
+                            <div class="text-sm text-blue-200">Sunset</div>
+                            <div class="text-lg sm:text-xl font-bold" id="sunset"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="weather-card bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-4 sm:p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="text-3xl">🌡️</div>
+                        <div>
+                            <div class="text-sm text-blue-200">Pressure</div>
+                            <div class="text-lg sm:text-xl font-bold" id="pressure"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4 sm:p-6">
+                <h3 class="text-xl sm:text-2xl font-bold mb-4">5-Day Forecast</h3>
+                <div id="forecast" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4"></div>
+            </div>
+        </div>
+
+        <div class="mt-10 text-center text-blue-200 text-xs sm:text-sm">
+            <p>Using OpenWeatherMap API for real-time data</p>
+            <p class="mt-2">Built with vanilla JavaScript • © 2025 Ayush Aryan</p>
+        </div>
+    </div>
+
+    <script>
+        // NOTE: Replace 'd5c531a2469dc5ee4e3023bc283d7193' with your actual, active OpenWeatherMap API key.
+        const API_KEY = 'd5c531a2469dc5ee4e3023bc283d7193';
+        const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+
+        const cityInput = document.getElementById('cityInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const locationBtn = document.getElementById('locationBtn');
+        const loading = document.getElementById('loading');
+        const weatherDisplay = document.getElementById('weatherDisplay');
+        const error = document.getElementById('error');
+
+        const weatherIcons = {
+            'Clear': '☀️', 'Clouds': '☁️', 'Rain': '🌧️', 'Drizzle': '🌦️',
+            'Thunderstorm': '⛈️', 'Snow': '❄️', 'Mist': '🌫️', 'Smoke': '💨',
+            'Haze': '🌫️', 'Dust': '🌪️', 'Fog': '🌫️', 'Sand': '🌪️',
+            'Ash': '🌋', 'Squall': '💨', 'Tornado': '🌪️'
+        };
+
+        searchBtn.addEventListener('click', () => {
+            const city = cityInput.value.trim();
+            if (city) getWeatherByCity(city);
+        });
+
+        cityInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const city = cityInput.value.trim();
+                if (city) getWeatherByCity(city);
+            }
+        });
+
+        locationBtn.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => getWeatherByCoords(pos.coords.latitude, pos.coords.longitude),
+                    () => showError('Unable to get your location. Please check browser permissions.')
+                );
+            } else showError('Geolocation not supported by your browser.');
+        });
+
+        // --- FETCH FUNCTIONS WITH IMPROVED ERROR HANDLING (From Code 2) ---
+
+        async function getWeatherByCity(city) {
+            showLoading();
+            try {
+                const response = await fetch(`${BASE_URL}/weather?q=${city}&appid=${API_KEY}&units=metric`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                         // Specific message for inactive key
+                         throw new Error('API Key Error: Please wait for your OpenWeatherMap key to fully activate.');
+                    }
+                    if (response.status === 404) {
+                         // Specific message for city not found
+                         throw new Error('City not found. Please check spelling or try another city.');
+                    }
+                    throw new Error(errorData.message || 'An unknown error occurred.');
+                }
+                
+                const data = await response.json();
+                displayWeather(data);
+                getForecast(data.coord.lat, data.coord.lon);
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        async function getWeatherByCoords(lat, lon) {
+            showLoading();
+            try {
+                const response = await fetch(`${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                         throw new Error('API Key Error: Please wait for your OpenWeatherMap key to fully activate.');
+                    }
+                    throw new Error(errorData.message || 'Unable to fetch weather data for your location.');
+                }
+                
+                const data = await response.json();
+                displayWeather(data);
+                getForecast(lat, lon);
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        async function getForecast(lat, lon) {
+            try {
+                const res = await fetch(`${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
+                if (!res.ok) throw new Error('Could not fetch forecast data.');
+                const data = await res.json();
+                displayForecast(data);
+            } catch (err) {
+                console.error('Error fetching forecast:', err);
+            }
+        }
+
+        // --- DISPLAY FUNCTIONS ---
+
+        function displayWeather(data) {
+            // Robust country code checking (From Code 2)
+            const countryCode = data.sys && data.sys.country ? data.sys.country : '';
+            const cityNameText = countryCode ? `${data.name}, ${countryCode}` : data.name;
+
+            document.getElementById('cityName').textContent = cityNameText;
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+            
+            const cond = data.weather[0].main;
+            document.getElementById('weatherIcon').textContent = weatherIcons[cond] || '🌡️';
+            document.getElementById('temperature').textContent = `${Math.round(data.main.temp)}°C`;
+            document.getElementById('description').textContent = data.weather[0].description;
+            document.getElementById('humidity').textContent = `${data.main.humidity}%`;
+            document.getElementById('windSpeed').textContent = `${data.wind.speed} m/s`;
+            document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°C`;
+            document.getElementById('visibility').textContent = `${(data.visibility / 1000).toFixed(1)} km`;
+
+            // Cleaner 12-hour time format (From Code 2)
+            const timeOptions = { hour: '2-digit', minute: '2-digit' };
+            document.getElementById('sunrise').textContent = new Date(data.sys.sunrise * 1000).toLocaleTimeString('en-US', timeOptions);
+            document.getElementById('sunset').textContent = new Date(data.sys.sunset * 1000).toLocaleTimeString('en-US', timeOptions);
+            
+            document.getElementById('pressure').textContent = `${data.main.pressure} hPa`;
+            
+            hideLoading();
+            weatherDisplay.classList.remove('hidden');
+        }
+
+        function displayForecast(data) {
+            const container = document.getElementById('forecast');
+            // Filter to get one point per day, starting with the next day's forecast
+            const daily = data.list.filter((_, i) => i % 8 === 0).slice(0, 5); 
+            
+            container.innerHTML = daily.map(day => {
+                const d = new Date(day.dt * 1000);
+                return `
+                    <div class='weather-card bg-white/10 rounded-lg p-4 text-center'>
+                        <div class='text-sm mb-2'>${d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                        <div class='text-3xl mb-2'>${weatherIcons[day.weather[0].main] || '🌡️'}</div>
+                        <div class='text-xl font-bold'>${Math.round(day.main.temp)}°C</div>
+                        <div class='text-sm text-blue-200'>${day.weather[0].main}</div>
+                    </div>`;
+            }).join('');
+        }
+
+        // --- UTILITY FUNCTIONS ---
+
+        function showLoading() {
+            error.classList.add('hidden');
+            weatherDisplay.classList.add('hidden');
+            loading.classList.remove('hidden');
+        }
+
+        function hideLoading() { loading.classList.add('hidden'); }
+        
+        function showError(msg) { 
+            hideLoading(); 
+            error.textContent = msg; 
+            error.classList.remove('hidden'); 
+            weatherDisplay.classList.add('hidden'); // Ensure dashboard stays hidden on error
+        }
+
+        // Load default city on page load
+        window.addEventListener('load', () => getWeatherByCity('Delhi'));
+    </script>
+</body>
+</html>

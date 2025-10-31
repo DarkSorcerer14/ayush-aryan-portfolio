@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeVault - Snippet Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .snippet-item { animation: slideIn 0.3s ease-out; }
+        .hljs { background: transparent !important; padding: 1rem; border-radius: 0.5rem; }
+        /* Style for the currently selected snippet */
+        .snippet-item.active {
+            border-color: #34d399; /* emerald-400 */
+            background-color: #1f2937; /* slate-800 */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col font-sans">
+    <div class="flex-grow container mx-auto px-4 py-8 max-w-7xl">
+        <header class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">
+                <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">CodeVault</span>
+            </h1>
+            <p class="text-slate-400">Your personal code snippet library</p>
+        </header>
+
+        <main class="lg:grid lg:grid-cols-3 lg:gap-6">
+            <aside id="sidebar" class="lg:col-span-1 lg:sticky lg:top-6 self-start">
+                <div class="bg-slate-900/50 backdrop-blur-lg rounded-2xl border border-slate-800 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold">Snippets</h2>
+                        <button id="newSnippetBtn" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg text-sm font-semibold hover:shadow-lg hover:shadow-emerald-500/50 transition-all">
+                            + New
+                        </button>
+                    </div>
+
+                    <input type="text" id="searchInput" placeholder="Search snippets..."
+                        class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg mb-3 text-sm focus:outline-none focus:border-emerald-500">
+
+                    <select id="languageFilter" class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg mb-4 text-sm focus:outline-none focus:border-emerald-500">
+                        <option value="all">All Languages</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
+                        <option value="typescript">TypeScript</option>
+                        <option value="cpp">C++</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    <div id="snippetList" class="space-y-2 max-h-[50vh] lg:max-h-96 overflow-y-auto">
+                        </div>
+
+                    <div class="mt-4 pt-4 border-t border-slate-800 text-sm text-slate-400">
+                        <div class="flex justify-between mb-2">
+                            <span>Total Snippets:</span>
+                            <span id="totalCount" class="font-bold text-emerald-400">0</span>
+                        </div>
+                        <button id="exportBtn" class="w-full px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs transition-all">
+                            Export All
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <section id="mainContent" class="lg:col-span-2 mt-6 lg:mt-0 hidden lg:block">
+                 <button id="backBtn" class="lg:hidden mb-4 px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-600 transition-all">
+                    &larr; Back to List
+                </button>
+
+                <div id="emptyState" class="bg-slate-900/50 backdrop-blur-lg rounded-2xl border border-slate-800 p-8 lg:p-12 text-center">
+                    <div class="text-6xl mb-4">📝</div>
+                    <h3 class="text-2xl font-bold mb-2">No Snippet Selected</h3>
+                    <p class="text-slate-400 mb-6">Select a snippet from the list or create a new one</p>
+                    <button id="emptyNewBtn" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-emerald-500/50 transition-all">
+                        Create Your First Snippet
+                    </button>
+                </div>
+
+                <div id="editorMode" class="hidden bg-slate-900/50 backdrop-blur-lg rounded-2xl border border-slate-800 p-6">
+                    <input type="text" id="snippetTitle" placeholder="Snippet Title" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg font-semibold text-lg focus:outline-none focus:border-emerald-500 mb-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                        <select id="snippetLanguage" class="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-emerald-500">
+                            <option value="javascript">JavaScript</option>
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="typescript">TypeScript</option>
+                            <option value="cpp">C++</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input type="text" id="snippetTags" placeholder="Tags (comma separated)" class="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <textarea id="snippetDescription" placeholder="Description (optional)" class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-emerald-500 mb-3" rows="2"></textarea>
+                    <textarea id="snippetCode" placeholder="Paste your code here..." class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg font-mono text-sm focus:outline-none focus:border-emerald-500" rows="12"></textarea>
+                    <div class="flex gap-3 mt-4">
+                        <button id="saveBtn" class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-emerald-500/50 transition-all">Save Snippet</button>
+                        <button id="cancelBtn" class="px-6 py-3 bg-slate-700 rounded-lg font-semibold hover:bg-slate-600 transition-all">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="viewMode" class="hidden bg-slate-900/50 backdrop-blur-lg rounded-2xl border border-slate-800 p-6">
+                    <div class="flex flex-col sm:flex-row items-start justify-between mb-4 gap-4">
+                        <div class="flex-1">
+                            <h2 id="viewTitle" class="text-2xl font-bold mb-2"></h2>
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                <span id="viewLanguage" class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm border border-emerald-500/30"></span>
+                                <div id="viewTags" class="flex flex-wrap gap-2"></div>
+                            </div>
+                            <p id="viewDescription" class="text-slate-400 text-sm"></p>
+                        </div>
+                        <div class="flex gap-2 self-start">
+                            <button id="editBtn" class="px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600 transition-all text-sm">Edit</button>
+                            <button id="deleteBtn" class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-all text-sm">Delete</button>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <button id="copyBtn" class="absolute top-3 right-3 px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-all z-10">Copy</button>
+                        <pre class="bg-slate-800 rounded-lg overflow-x-auto"><code id="viewCode" class="text-sm"></code></pre>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-500">
+                        Created: <span id="viewDate"></span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="mt-8 text-center text-slate-500 border-t border-slate-800 py-6 text-sm">
+        <p>&copy; 2025 Ayush Aryan. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE MANAGEMENT ---
+            let snippets = [];
+            let activeSnippetId = null;
+            let editingId = null;
+
+            // --- DOM ELEMENTS ---
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const emptyState = document.getElementById('emptyState');
+            const editorMode = document.getElementById('editorMode');
+            const viewMode = document.getElementById('viewMode');
+            const snippetList = document.getElementById('snippetList');
+            const searchInput = document.getElementById('searchInput');
+            const languageFilter = document.getElementById('languageFilter');
+            const totalCount = document.getElementById('totalCount');
+            const backBtn = document.getElementById('backBtn');
+
+            // --- UI UPDATE FUNCTIONS ---
+
+            /** Manages which primary view (list, empty, editor, viewer) is visible */
+            function showView(view) { // 'empty', 'editor', 'viewer'
+                emptyState.classList.toggle('hidden', view !== 'empty');
+                editorMode.classList.toggle('hidden', view !== 'editor');
+                viewMode.classList.toggle('hidden', view !== 'viewer');
+
+                if (window.innerWidth < 1024) { // lg breakpoint in Tailwind
+                    sidebar.classList.toggle('hidden', !!view);
+                    mainContent.classList.toggle('hidden', !view);
+                } else {
+                    mainContent.classList.remove('hidden');
+                }
+            }
+            
+            /** Renders the list of snippets based on current filters */
+            function renderSnippetList() {
+                const search = searchInput.value.toLowerCase();
+                const langFilter = languageFilter.value;
+
+                const filtered = snippets.filter(s => {
+                    const matchesSearch = s.title.toLowerCase().includes(search) ||
+                                        s.tags.some(t => t.toLowerCase().includes(search));
+                    const matchesLang = langFilter === 'all' || s.language === langFilter;
+                    return matchesSearch && matchesLang;
+                });
+
+                if (filtered.length === 0) {
+                    snippetList.innerHTML = '<div class="text-center text-slate-500 text-sm py-4">No snippets found</div>';
+                } else {
+                    snippetList.innerHTML = filtered.map(snippet => `
+                        <div class="snippet-item p-3 bg-slate-800/80 rounded-lg cursor-pointer hover:bg-slate-700 transition-all border border-slate-700 ${snippet.id === activeSnippetId ? 'active' : ''}" data-id="${snippet.id}">
+                            <div class="font-semibold text-sm mb-1 truncate pointer-events-none">${snippet.title}</div>
+                            <div class="flex items-center gap-2 text-xs text-slate-400 pointer-events-none">
+                                <span class="px-2 py-0.5 bg-slate-700 rounded">${snippet.language}</span>
+                                <span class="truncate">${snippet.tags.slice(0, 2).map(t => `#${t}`).join(' ')}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            /** Populates and displays the snippet viewer */
+            function displaySnippet(snippet) {
+                activeSnippetId = snippet.id;
+                document.getElementById('viewTitle').textContent = snippet.title;
+                document.getElementById('viewLanguage').textContent = snippet.language.toUpperCase();
+                document.getElementById('viewDescription').textContent = snippet.description || 'No description';
+
+                const tagsContainer = document.getElementById('viewTags');
+                tagsContainer.innerHTML = snippet.tags.map(tag =>
+                    `<span class="px-2 py-1 bg-slate-700 rounded text-xs">#${tag}</span>`
+                ).join('');
+
+                const codeElement = document.getElementById('viewCode');
+                codeElement.textContent = snippet.code;
+                codeElement.className = `language-${snippet.language}`;
+                hljs.highlightElement(codeElement);
+
+                document.getElementById('viewDate').textContent = new Date(snippet.created).toLocaleString();
+                showView('viewer');
+                renderSnippetList(); // Re-render to highlight the active item
+            }
+
+            /** Populates and displays the snippet editor */
+            function displayEditor(snippet = null) {
+                if (snippet) {
+                    editingId = snippet.id;
+                    document.getElementById('snippetTitle').value = snippet.title;
+                    document.getElementById('snippetLanguage').value = snippet.language;
+                    document.getElementById('snippetTags').value = snippet.tags.join(', ');
+                    document.getElementById('snippetDescription').value = snippet.description;
+                    document.getElementById('snippetCode').value = snippet.code;
+                } else {
+                    editingId = null;
+                    document.getElementById('snippetTitle').value = '';
+                    document.getElementById('snippetLanguage').value = 'javascript';
+                    document.getElementById('snippetTags').value = '';
+                    document.getElementById('snippetDescription').value = '';
+                    document.getElementById('snippetCode').value = '';
+                }
+                showView('editor');
+            }
+
+            /** Updates the total snippet count display */
+            function updateStats() {
+                totalCount.textContent = snippets.length;
+            }
+
+            // --- DATA & EVENT HANDLERS ---
+            
+            function handleSaveSnippet() {
+                const title = document.getElementById('snippetTitle').value.trim();
+                const code = document.getElementById('snippetCode').value.trim();
+                if (!title || !code) {
+                    alert('Title and code are required!');
+                    return;
+                }
+
+                const updatedSnippet = {
+                    title,
+                    language: document.getElementById('snippetLanguage').value,
+                    tags: document.getElementById('snippetTags').value.split(',').map(t => t.trim()).filter(Boolean),
+                    description: document.getElementById('snippetDescription').value.trim(),
+                    code,
+                };
+
+                let savedSnippet;
+                if (editingId) {
+                    const index = snippets.findIndex(s => s.id === editingId);
+                    snippets[index] = { ...snippets[index], ...updatedSnippet };
+                    savedSnippet = snippets[index];
+                } else {
+                    savedSnippet = { ...updatedSnippet, id: Date.now(), created: new Date().toISOString() };
+                    snippets.push(savedSnippet);
+                }
+
+                saveSnippetsToStorage();
+                updateStats();
+                displaySnippet(savedSnippet);
+            }
+
+            function handleDeleteSnippet() {
+                if (!activeSnippetId) return;
+                if (!confirm('Are you sure you want to delete this snippet?')) return;
+
+                snippets = snippets.filter(s => s.id !== activeSnippetId);
+                activeSnippetId = null;
+                saveSnippetsToStorage();
+                updateStats();
+                showView('empty');
+                renderSnippetList();
+            }
+
+            function handleCopyCode() {
+                const snippet = snippets.find(s => s.id === activeSnippetId);
+                if (!snippet) return;
+                navigator.clipboard.writeText(snippet.code).then(() => {
+                    const btn = document.getElementById('copyBtn');
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => btn.textContent = 'Copy', 2000);
+                });
+            }
+
+            function handleCancelEdit() {
+                const snippet = snippets.find(s => s.id === activeSnippetId);
+                if (snippet) {
+                    displaySnippet(snippet);
+                } else {
+                    showView('empty');
+                }
+            }
+
+            // --- LOCAL STORAGE & UTILITIES ---
+
+            /** Saves the entire snippets array to localStorage */
+            function saveSnippetsToStorage() {
+                localStorage.setItem('codeSnippets', JSON.stringify(snippets));
+            }
+
+            /** Loads snippets from localStorage or loads demo data */
+            function loadSnippets() {
+                snippets = JSON.parse(localStorage.getItem('codeSnippets')) || [];
+                if (snippets.length === 0) {
+                    snippets = getDemoSnippets();
+                    saveSnippetsToStorage();
+                }
+            }
+
+            function exportSnippets() {
+                const dataStr = JSON.stringify(snippets, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `code-vault-snippets-${Date.now()}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            function debounce(func, delay) {
+                let timeout;
+                return (...args) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+            
+            function getDemoSnippets() {
+                return [
+                    {
+                        id: Date.now(), title: 'Fetch API Example', language: 'javascript', tags: ['api', 'async', 'fetch'], description: 'Basic fetch API request with error handling',
+                        code: `async function fetchData(url) {\n  try {\n    const response = await fetch(url);\n    if (!response.ok) throw new Error('Network response was not ok');\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('Fetch error:', error);\n    return null;\n  }\n}`,
+                        created: new Date().toISOString()
+                    },
+                    {
+                        id: Date.now() + 1, title: 'Array Methods Cheatsheet', language: 'javascript', tags: ['array', 'methods', 'cheatsheet'], description: 'Common JavaScript array manipulation methods',
+                        code: `// Map - Transform array elements\nconst doubled = [1, 2, 3].map(x => x * 2);\n\n// Filter - Select elements matching condition\nconst evens = [1, 2, 3, 4].filter(x => x % 2 === 0);\n\n// Reduce - Combine all elements\nconst sum = [1, 2, 3, 4].reduce((acc, x) => acc + x, 0);\n\n// Find - Get first matching element\nconst found = [1, 2, 3].find(x => x > 1);`,
+                        created: new Date().toISOString()
+                    }
+                ];
+            }
+
+
+            // --- INITIALIZATION & EVENT LISTENERS ---
+            
+            function init() {
+                loadSnippets();
+                renderSnippetList();
+                updateStats();
+
+                // Initial view state
+                if (window.innerWidth < 1024) {
+                    showView(null); // Show only the list on mobile initially
+                } else {
+                    showView('empty'); // Show list and empty state on desktop
+                }
+
+                // Event Listeners
+                document.getElementById('newSnippetBtn').addEventListener('click', () => displayEditor());
+                document.getElementById('emptyNewBtn').addEventListener('click', () => displayEditor());
+                document.getElementById('saveBtn').addEventListener('click', handleSaveSnippet);
+                document.getElementById('cancelBtn').addEventListener('click', handleCancelEdit);
+                document.getElementById('editBtn').addEventListener('click', () => displayEditor(snippets.find(s => s.id === activeSnippetId)));
+                document.getElementById('deleteBtn').addEventListener('click', handleDeleteSnippet);
+                document.getElementById('copyBtn').addEventListener('click', handleCopyCode);
+                document.getElementById('exportBtn').addEventListener('click', exportSnippets);
+                backBtn.addEventListener('click', () => showView(null));
+                
+                searchInput.addEventListener('input', debounce(renderSnippetList, 300));
+                languageFilter.addEventListener('change', renderSnippetList);
+                
+                // Event Delegation for snippet list
+                snippetList.addEventListener('click', (e) => {
+                    const item = e.target.closest('.snippet-item');
+                    if (item) {
+                        const id = Number(item.dataset.id);
+                        const snippet = snippets.find(s => s.id === id);
+                        if (snippet) displaySnippet(snippet);
+                    }
+                });
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
