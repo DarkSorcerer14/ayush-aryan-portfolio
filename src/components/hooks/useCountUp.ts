@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-// Animates a number from 0 to 'end' over a duration
+// Animates a number from 0 to 'end' over a duration in milliseconds
 const useCountUp = (end: number, duration = 1500, startCounting = true) => {
   const [count, setCount] = useState(0);
   const start = 0;
