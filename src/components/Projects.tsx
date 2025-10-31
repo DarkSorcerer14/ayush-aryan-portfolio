@@ -143,4 +143,8 @@ const Projects: React.FC = () => {
   );
 };
 
+<<<<<<< HEAD
 export default Projects;
+=======
+export default Projects;
+>>>>>>> ecc36ef0593a87cc67c25e0c39f43a292ea12f12
