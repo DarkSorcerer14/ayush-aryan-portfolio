@@ -1,5 +1,3 @@
-## Ayush Aryan — Portfolio
-
 # Personal Portfolio
 
 A modern, responsive portfolio website showcasing my projects, skills, and experience as a Computer Science student at SRM Institute of Science and Technology.
@@ -76,14 +74,6 @@ portfolio/
 - **Projects** - Featured projects with descriptions
 - **Experience** - Workshops and work experience
 - **Contact** - Contact form and social links
-
-
-## Available Scripts
-
-- `npm run dev` - Start development server at localhost:5173
-- `npm run build` - Create production build
-- `npm run preview` - Preview production build locally
-- `npm run lint` - Run ESLint for code quality
 
 ## Connect With Me
 
