@@ -68,6 +68,12 @@ const Experience = () => {
   ];
 
   const certifications = [
+     {
+      name: 'Cybersecurity Fundamentals',
+      issuer: 'IBM',
+      date: 'February 2026',
+      skills: 'Cybersecurity Risk Management, Incident Response, Threat Analysis, Vulnerability Management, Cryptography',
+    },
     {
       name: 'Introduction to Front End Development',
       issuer: 'Simplilearn',
